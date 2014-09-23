@@ -103,6 +103,20 @@ the remote in the currently deployed .origin file.
 %{_datadir}/rhsm/subscription_manager/plugin/ostree/*.py*
 %endif
 
+%package -n subscription-manager-plugin-docker
+Summary: A plugin for handling docker content.
+Group: System Environment/Base
+
+%description -n subscription-manager-plugin-docker
+Enables handling of content of type 'docker' in any certificates
+from the server. Populates /etc/docker/certs.d appropriately.
+
+%files -n subscription-manager-plugin-docker
+%defattr(-,root,root,-)
+%{_sysconfdir}/rhsm/pluginconf.d/docker_content.DockerContentPlugin.conf
+%{rhsm_plugins_dir}/docker_content.py*
+%{_datadir}/rhsm/subscription_manager/plugin/docker/*.py*
+
 %package -n subscription-manager-gui
 Summary: A GUI interface to manage Red Hat product subscriptions
 Group: System Environment/Base
@@ -273,7 +287,8 @@ rm -rf %{buildroot}
 %{_datadir}/rhsm/subscription_manager/logutil.py*
 %{_datadir}/rhsm/subscription_manager/managercli.py*
 %{_datadir}/rhsm/subscription_manager/managerlib.py*
-%{_datadir}/rhsm/subscription_manager/models.py*
+%{_datadir}/rhsm/subscription_manager/model
+%{_datadir}/rhsm/subscription_manager/model/*.py
 %{_datadir}/rhsm/subscription_manager/packageprofilelib.py*
 %{_datadir}/rhsm/subscription_manager/plugins.py*
 %{_datadir}/rhsm/subscription_manager/productid.py*
