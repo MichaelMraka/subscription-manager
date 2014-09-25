@@ -99,4 +99,3 @@ class TestEntitlementSource(fixture.SubManFixture):
         cont_list = ent_src.find_content(content_type='containerImage')
         self.assertEquals(1, len(cont_list))
         self.assertEquals('container_content', cont_list[0].name)
-

@@ -191,4 +191,3 @@ class ContainerUpdateReport(certlib.ActionReport):
         s.append(_("Removed:"))
         s.append(self._format_file_list(self.removed))
         return '\n'.join(s)
-
