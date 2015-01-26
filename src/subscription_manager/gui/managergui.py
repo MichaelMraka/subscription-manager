@@ -35,7 +35,6 @@ import rhsm.config as config
 from subscription_manager.branding import get_branding
 from subscription_manager.entcertlib import EntCertActionInvoker
 from subscription_manager.facts import Facts
-from subscription_manager.hwprobe import ClassicCheck
 from subscription_manager import managerlib
 from subscription_manager.utils import get_client_versions, get_server_versions, parse_baseurl_info, restart_virt_who
 
@@ -56,6 +55,7 @@ from subscription_manager.gui.utils import handle_gui_exception, linkify
 from subscription_manager.gui.reposgui import RepositoriesDialog
 from subscription_manager.overrides import Overrides
 
+from rhsm_facts.software import rhn
 
 _ = gettext.gettext
 
@@ -440,7 +440,7 @@ class MainWindow(widgets.GladeWidget):
         self.backend.update()
 
     def _check_rhn_classic(self):
-        if ClassicCheck().is_registered_with_classic():
+        if rhn.RhnClassicCheck().is_registered_with_classic():
             prompt = messageWindow.ContinueDialog(
                     linkify(get_branding().REGISTERED_TO_OTHER_WARNING),
                     self.main_window, _("System Already Registered"))

@@ -18,7 +18,6 @@ from subscription_manager.cert_sorter import FUTURE_SUBSCRIBED, \
     NOT_SUBSCRIBED, EXPIRED, PARTIALLY_SUBSCRIBED, UNKNOWN
 from subscription_manager.branding import get_branding
 from subscription_manager.gui import widgets
-from subscription_manager.hwprobe import ClassicCheck
 from subscription_manager.utils import friendly_join
 
 import logging
@@ -26,6 +25,8 @@ import gettext
 import gobject
 import gtk
 import os
+
+from rhsm_facts.software import rhn
 
 log = logging.getLogger('rhsm-app.' + __name__)
 
@@ -285,7 +286,7 @@ class InstalledProductsTab(widgets.SubscriptionManagerTab):
     def _set_validity_status(self):
         """ Updates the entitlement validity status portion of the UI. """
 
-        if ClassicCheck().is_registered_with_classic():
+        if rhn.RhnClassicCheck().is_registered_with_classic():
             self._set_status_icons(VALID_STATUS)
             self.subscription_status_label.set_text(
                 get_branding().RHSMD_REGISTERED_TO_OTHER)

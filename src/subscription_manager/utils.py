@@ -30,7 +30,6 @@ from M2Crypto.SSL import SSLError
 
 from subscription_manager.branding import get_branding
 from subscription_manager.certdirectory import Path
-from subscription_manager.hwprobe import ClassicCheck
 from subscription_manager import injection as inj
 
 # we moved quite a bit of code from this module to rhsm.
@@ -43,6 +42,8 @@ import rhsm.version
 from rhsm.connection import UEPConnection, RestlibException, GoneException
 from rhsm.config import DEFAULT_PORT, DEFAULT_PREFIX, DEFAULT_HOSTNAME, \
     DEFAULT_CDN_HOSTNAME, DEFAULT_CDN_PORT, DEFAULT_CDN_PREFIX
+
+from rhsm_facts.software import rhn
 
 log = logging.getLogger('rhsm-app.' + __name__)
 
@@ -232,7 +233,7 @@ def get_server_versions(cp, exception_on_timeout=False):
     identity = inj.require(inj.IDENTITY)
 
     # check for Classic before doing anything else
-    if ClassicCheck().is_registered_with_classic():
+    if rhn.RhnClassicCheck().is_registered_with_classic():
         if identity.is_valid():
             server_type = get_branding().REGISTERED_TO_BOTH_SUMMARY
         else:

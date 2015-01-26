@@ -331,8 +331,9 @@ NOT_COLLECTED = "non-collected-package"
 
 class TestGetServerVersions(fixture.SubManFixture):
 
-    @patch('subscription_manager.utils.ClassicCheck')
-    def test_get_server_versions_classic(self, MockClassicCheck):
+    @patch('subscription_manager.utils.Versions', spec=Versions)
+    @patch('rhsm_facts.software.rhn.RhnClassicCheck')
+    def test_get_server_versions_classic(self, mock_classic, mock_versions):
         self._inject_mock_invalid_consumer()
         instance = MockClassicCheck.return_value
         instance.is_registered_with_classic.return_value = True
@@ -342,7 +343,7 @@ class TestGetServerVersions(fixture.SubManFixture):
         self.assertEquals(sv['candlepin'], "Unknown")
 
     @patch('rhsm.connection.UEPConnection')
-    @patch('subscription_manager.utils.ClassicCheck')
+    @patch('rhsm_facts.software.rhn.RhnClassicCheck')
     def test_get_server_versions_cp_no_status(self, mock_classic, MockUep):
         instance = mock_classic.return_value
         instance.is_registered_with_classic.return_value = False
@@ -353,7 +354,7 @@ class TestGetServerVersions(fixture.SubManFixture):
         self.assertEquals(sv['candlepin'], "Unknown")
 
     @patch('rhsm.connection.UEPConnection')
-    @patch('subscription_manager.utils.ClassicCheck')
+    @patch('rhsm_facts.software.rhn.RhnClassicCheck')
     def test_get_server_versions_cp_with_status(self, mock_classic, MockUep):
         instance = mock_classic.return_value
         instance.is_registered_with_classic.return_value = False
@@ -366,7 +367,7 @@ class TestGetServerVersions(fixture.SubManFixture):
         self.assertEquals(sv['rules-version'], '6.1')
 
     @patch('rhsm.connection.UEPConnection')
-    @patch('subscription_manager.utils.ClassicCheck')
+    @patch('rhsm_facts.software.rhn.RhnClassicCheck')
     def test_get_server_versions_cp_with_status_no_rules_version(self, mock_classic, MockUep):
         instance = mock_classic.return_value
         instance.is_registered_with_classic.return_value = False
@@ -379,7 +380,7 @@ class TestGetServerVersions(fixture.SubManFixture):
         self.assertEquals(sv['rules-version'], 'Unknown')
 
     @patch('rhsm.connection.UEPConnection')
-    @patch('subscription_manager.utils.ClassicCheck')
+    @patch('rhsm_facts.software.rhn.RhnClassicCheck')
     def test_get_server_versions_cp_with_status_no_keys(self, mock_classic, MockUep):
         instance = mock_classic.return_value
         instance.is_registered_with_classic.return_value = False
@@ -392,7 +393,7 @@ class TestGetServerVersions(fixture.SubManFixture):
         self.assertEquals(sv['rules-version'], 'Unknown')
 
     @patch('rhsm.connection.UEPConnection')
-    @patch('subscription_manager.utils.ClassicCheck')
+    @patch('rhsm_facts.software.rhn.RhnClassicCheck')
     def test_get_server_versions_cp_with_status_bad_data(self, mock_classic, MockUep):
         instance = mock_classic.return_value
         instance.is_registered_with_classic.return_value = False
@@ -420,7 +421,7 @@ class TestGetServerVersions(fixture.SubManFixture):
             self.assertEquals(sv['rules-version'], 'Unknown')
 
     @patch('rhsm.connection.UEPConnection')
-    @patch('subscription_manager.utils.ClassicCheck')
+    @patch('rhsm_facts.software.rhn.RhnClassicCheck')
     def test_get_server_versions_cp_with_status_and_classic(self, mock_classic, MockUep):
         instance = mock_classic.return_value
         instance.is_registered_with_classic.return_value = True
@@ -433,7 +434,7 @@ class TestGetServerVersions(fixture.SubManFixture):
         self.assertEquals(sv['rules-version'], '6.1')
 
     @patch('rhsm.connection.UEPConnection')
-    @patch('subscription_manager.utils.ClassicCheck')
+    @patch('rhsm_facts.software.rhn.RhnClassicCheck')
     def test_get_server_versions_cp_exception(self, mock_classic, MockUep):
         def raise_exception(arg):
             raise Exception("boom")
@@ -447,7 +448,7 @@ class TestGetServerVersions(fixture.SubManFixture):
         self.assertEquals(sv['candlepin'], "Unknown")
 
     @patch('rhsm.connection.UEPConnection')
-    @patch('subscription_manager.utils.ClassicCheck')
+    @patch('rhsm_facts.software.rhn.RhnClassicCheck')
     def test_get_server_versions_cp_exception_and_classic(self, mock_classic, MockUep):
         def raise_exception(arg):
             raise Exception("boom")

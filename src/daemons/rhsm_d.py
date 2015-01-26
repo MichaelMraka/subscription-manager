@@ -67,12 +67,13 @@ init_dep_injection()
 
 from subscription_manager.branding import get_branding
 from subscription_manager.injection import require, IDENTITY, CERT_SORTER
-from subscription_manager.hwprobe import ClassicCheck
 from subscription_manager.i18n_optparse import OptionParser, \
     WrappedIndentedHelpFormatter, USAGE
 from subscription_manager.cert_sorter import RHSM_VALID, \
         RHSM_EXPIRED, RHSM_WARNING, RHSM_PARTIALLY_VALID, \
         RHN_CLASSIC, RHSM_REGISTRATION_REQUIRED
+
+from rhsm_facts.software import rhn
 
 import rhsm.config
 CFG = rhsm.config.initConfig()
@@ -99,7 +100,7 @@ def pre_check_status(force_signal):
         debug("forcing status signal from cli arg")
         return force_signal
 
-    if ClassicCheck().is_registered_with_classic():
+    if rhn.RhnClassicCheck().is_registered_with_classic():
         debug("System is already registered to another entitlement system")
         return RHN_CLASSIC
 

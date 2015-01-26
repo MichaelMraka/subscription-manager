@@ -43,7 +43,6 @@ from subscription_manager.cert_sorter import ComplianceManager, FUTURE_SUBSCRIBE
         SUBSCRIBED, NOT_SUBSCRIBED, EXPIRED, PARTIALLY_SUBSCRIBED, UNKNOWN
 from subscription_manager.cli import AbstractCLICommand, CLI, system_exit
 from subscription_manager import rhelentbranding
-from subscription_manager.hwprobe import ClassicCheck
 import subscription_manager.injection as inj
 from subscription_manager.jsonwrapper import PoolWrapper
 from subscription_manager import managerlib
@@ -58,6 +57,8 @@ from subscription_manager.utils import parse_server_info, \
 from subscription_manager.overrides import Overrides, Override
 from subscription_manager.exceptions import ExceptionMapper
 from subscription_manager.printing_utils import columnize, format_name, _none_wrap, _echo
+
+from rhsm_facts.software import rhn
 
 _ = gettext.gettext
 
@@ -635,7 +636,7 @@ class IdentityCommand(UserPassCommand):
         identity = inj.require(inj.IDENTITY)
 
         # check for Classic before doing anything else
-        if ClassicCheck().is_registered_with_classic():
+        if rhn.RhnClassicCheck().is_registered_with_classic():
             if identity.is_valid():
                 print _("server type: %s") % get_branding().REGISTERED_TO_BOTH_SUMMARY
             else:
@@ -1006,7 +1007,7 @@ class RegisterCommand(UserPassCommand):
         self.log_client_version()
 
         # Always warn the user if registered to old RHN/Spacewalk
-        if ClassicCheck().is_registered_with_classic():
+        if rhn.RhnClassicCheck().is_registered_with_classic():
             print(get_branding().REGISTERED_TO_OTHER_WARNING)
 
         self._validate_options()
