@@ -1,6 +1,6 @@
 import tempfile
 import shutil
-from mock import patch, Mock
+from mock import patch
 
 import fixture
 from stubs import StubEntitlementDirectory, StubProductDirectory
@@ -230,7 +230,7 @@ class TestFacts(fixture.SubManFixture):
         self.assertEquals(f['net.interface.lo.ipv4_address'], 'foobar')
 
     # simulate an empty facts file
-    @patch('subscription_manager.facts.Facts._open_custom_facts',
+    @patch('rhsm_facts.custom.collector.CustomCollector._open_custom_facts',
            return_value="")
     @patch('subscription_manager.facts.Facts.collect_facts',
            return_value={})
@@ -244,7 +244,7 @@ class TestFacts(fixture.SubManFixture):
         self.assertTrue(isinstance(f, dict))
 
     @patch('glob.glob', return_value="/path/to/custom/facts/foo.fact")
-    @patch('subscription_manager.facts.Facts._open_custom_facts')
+    @patch('rhsm_facts.custom.collector.CustomCollector._open_custom_facts')
     @patch('subscription_manager.facts.Facts.collect_facts',
            return_value={})
     def test_custom_facts(self, mock_load_hw, mock_open_cf, mock_glob):
@@ -263,9 +263,8 @@ class TestFacts(fixture.SubManFixture):
         self.assertTrue(isinstance(f, dict))
         self.assertEquals(f['test_key'], 'test_value')
 
-    @patch('subscription_manager.facts.Facts._load_custom_facts')
     @patch('subscription_manager.facts.Facts.collect_facts')
-    def test_write_facts(self, mock_load_hw, mock_load_cf):
+    def test_write_facts(self, mock_load_hw):
         mock_load_hw.return_value = \
             {'net.interface.lo.ipv4_address': '127.0.0.1',
              'cpu.cpu_socket(s)': '128',
