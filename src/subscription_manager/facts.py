@@ -24,12 +24,16 @@ from subscription_manager.cache import CacheManager
 import subscription_manager.injection as inj
 from rhsm import ourjson as json
 
+from rhsm_facts import default_collector
+
 _ = gettext.gettext
 
 log = logging.getLogger('rhsm-app.' + __name__)
 
+
 # Hardcoded value for the version of certificates this version of the client
 # prefers:
+# FIXME: move to rhsm_facts.software
 CERT_VERSION = "3.2"
 
 
@@ -45,7 +49,9 @@ class Facts(CacheManager):
 
     def __init__(self, ent_dir=None, prod_dir=None):
         self.facts = {}
+        self.has_collected = False
 
+        # TODO: remove these, we don't use them and they should be
         self.entitlement_dir = ent_dir or inj.require(inj.ENT_DIR)
         self.product_dir = prod_dir or inj.require(inj.PROD_DIR)
         # see bz #627962
@@ -75,32 +81,45 @@ class Facts(CacheManager):
 
         cached_facts = self._read_cache() or {}
         # In order to accurately check for changes, we must refresh local data
-        self.facts = self.get_facts(True)
+        self.facts = self.collect_facts()
 
         for key in (set(self.facts) | set(cached_facts)) - set(self.graylist):
             if self.facts.get(key) != cached_facts.get(key):
                 return True
         return False
 
-    def get_facts(self, refresh=False):
-        if ((len(self.facts) == 0) or refresh):
-            facts = {}
-            facts.update(self._load_hw_facts())
+    def collect_facts(self):
 
-            # Set the preferred entitlement certificate version:
-            facts.update({"system.certificate_version": CERT_VERSION})
+        fact_data = {}
+        #fact_data.update(self._load_hw_facts())
 
-            facts.update(self._load_custom_facts())
-            self.plugin_manager.run('post_facts_collection', facts=facts)
-            self.facts = facts
+        # Default collector is hardware, software, plus custom from
+        # /etc/rhsm/facts/
+        dc = default_collector.DefaultCollector(custom_facts_dir=rhsm.config.DEFAULT_CONFIG_DIR.rstrip('/'))
+        dc.collect(fact_data)
+        #fact_data.update(dc.facts)
+
+        log.debug(dc.facts)
+        # Set the preferred entitlement certificate version:
+        fact_data.update({"system.certificate_version": CERT_VERSION})
+
+        fact_data.update(self._load_custom_facts())
+        self.plugin_manager.run('post_facts_collection', facts=fact_data)
+
+        return fact_data
+
+    def get_facts(self):
+        if not self.has_collected:
+            self.facts = self.collect_facts()
+            self.has_collected = True
         return self.facts
 
     def to_dict(self):
         return self.get_facts()
 
-    def _load_hw_facts(self):
-        import hwprobe
-        return hwprobe.Hardware().get_all()
+   # def _load_hw_facts(self):
+   #     import hwprobe
+   #     return hwprobe.Hardware().get_all()
 
     def _parse_facts_json(self, json_buffer, file_path):
         custom_facts = None

@@ -263,7 +263,7 @@ class SubManFixture(unittest.TestCase):
             message += "Keys in only one dict: \n"
             if missing_keys:
                 for key in missing_keys:
-                    message += "actual_dict:  %s\n" % key
+                    message += "actual_dict key:  %s\n" % key
             if extra:
                 for key in extra:
                     message += "expected_dict: %s\n" % key

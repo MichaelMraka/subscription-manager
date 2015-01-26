@@ -21,7 +21,8 @@ from mock import patch
 from mock import Mock
 
 import fixture
-from subscription_manager import hwprobe
+#from subscription_manager import hwprobe
+from rhsm_facts.hardware import hwprobe
 
 PROC_BONDING_RR = """Ethernet Channel Bonding Driver: v3.6.0 (September 26, 2009)
 

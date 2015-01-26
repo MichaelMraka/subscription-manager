@@ -1,6 +1,6 @@
 import tempfile
 import shutil
-from mock import patch
+from mock import patch, Mock
 
 import fixture
 from stubs import StubEntitlementDirectory, StubProductDirectory
@@ -149,27 +149,23 @@ class TestFacts(fixture.SubManFixture):
         #FIXME: verify the date is correct
         self.f.get_last_update()
 
-    @patch('subscription_manager.facts.Facts._load_custom_facts',
+    @patch('rhsm_facts.hardware.Collector.collect',
            return_value={})
-    @patch('subscription_manager.facts.Facts._load_hw_facts',
+    @patch('rhsm_facts.custom.Collector.collect',
            return_value={'newstuff': 'a new_hope'})
     def test_facts_has_changed(self, mock_load_hw, mock_load_cf):
         self.assertTrue(self.f.has_changed())
 
-    @patch('subscription_manager.facts.Facts._load_custom_facts',
-           return_value={})
-    @patch('subscription_manager.facts.Facts._load_hw_facts')
-    def test_facts_has_changed_no_change(self, mock_load_hw, mock_load_cf):
+    @patch('rhsm_facts.hardware.Collector.collect')
+    def test_facts_has_changed_no_change(self, mock_load_hw):
         test_facts = json.loads(facts_buf)
         mock_load_hw.return_value = test_facts
         changed = self.f.has_changed()
         self.assert_equal_dict(test_facts, self.f.facts)
         self.assertFalse(changed)
 
-    @patch('subscription_manager.facts.Facts._load_custom_facts',
-           return_value={})
-    @patch('subscription_manager.facts.Facts._load_hw_facts')
-    def test_facts_has_changed_with_change(self, mock_load_hw, mock_load_cf):
+    @patch('rhsm_facts.hardware.Collector.collect')
+    def test_facts_has_changed_with_change(self, mock_load_hw):
         test_facts = json.loads(facts_buf)
         # change socket fact count from what is in the cache
         test_facts['cpu.cpu_socket(s)'] = '16'
@@ -181,26 +177,23 @@ class TestFacts(fixture.SubManFixture):
 
     @patch('subscription_manager.facts.Facts._read_cache',
            return_value=None)
-    @patch('subscription_manager.facts.Facts._load_custom_facts',
-           return_value={})
-    @patch('subscription_manager.facts.Facts._load_hw_facts')
-    def test_facts_has_changed_cache_is_none(self, mock_load_hw,
-                                             mock_load_cf,
+    @patch('subscription_manager.facts.Facts.collect_facts')
+    def test_facts_has_changed_cache_is_none(self, mock_collect_hw,
                                              mock_read_cache):
         test_facts = json.loads(facts_buf)
-        mock_load_hw.return_value = test_facts
+        mock_collect_hw.return_value = test_facts
 
         changed = self.f.has_changed()
+        import pprint
+
+        pprint.pprint(changed)
         self.assert_equal_dict(test_facts, self.f.facts)
         self.assertTrue(changed)
 
     @patch('subscription_manager.facts.Facts._cache_exists',
            return_value=False)
-    @patch('subscription_manager.facts.Facts._load_custom_facts',
-           return_value={})
-    @patch('subscription_manager.facts.Facts._load_hw_facts')
+    @patch('rhsm_facts.default_collector.DefaultCollector.collect')
     def test_facts_has_changed_cache_exists_false(self, mock_load_hw,
-                                                  mock_load_cf,
                                                   mock_read_cache):
 
         test_facts = json.loads(facts_buf)
@@ -209,13 +202,13 @@ class TestFacts(fixture.SubManFixture):
         changed = self.f.has_changed()
         self.assertTrue(changed)
 
-    @patch('subscription_manager.facts.Facts._load_custom_facts')
-    @patch('subscription_manager.facts.Facts._load_hw_facts')
-    def test_get_facts(self, mock_load_hw, mock_load_cf):
+    @patch('rhsm_facts.custom.Collector.collect')
+    @patch('rhsm_facts.hardware.Collector.collect')
+    def test_get_facts(self, mock_load_hw, mock_load_custom):
         mock_load_hw.return_value = \
             {'net.interface.lo.ipv4_address': '127.0.0.1'}
 
-        mock_load_cf.return_value = \
+        mock_load_custom.return_value = \
             {'some.custom_fact': 'foobar'}
 
         f = self.f.get_facts()
@@ -224,8 +217,8 @@ class TestFacts(fixture.SubManFixture):
         self.assertEquals(f['net.interface.lo.ipv4_address'], '127.0.0.1')
         self.assertEquals(f['some.custom_fact'], 'foobar')
 
-    @patch('subscription_manager.facts.Facts._load_custom_facts')
-    @patch('subscription_manager.facts.Facts._load_hw_facts')
+    @patch('rhsm_facts.custom.Collector.collect')
+    @patch('rhsm_facts.hardware.Collector.collect')
     def test_custom_facts_override_hardware_facts(self, mock_load_hw, mock_load_cf):
         mock_load_hw.return_value = \
             {'net.interface.lo.ipv4_address': '127.0.0.1'}
@@ -239,7 +232,7 @@ class TestFacts(fixture.SubManFixture):
     # simulate an empty facts file
     @patch('subscription_manager.facts.Facts._open_custom_facts',
            return_value="")
-    @patch('subscription_manager.facts.Facts._load_hw_facts',
+    @patch('subscription_manager.facts.Facts.collect_facts',
            return_value={})
     def test_empty_custom_facts(self, mock_load_hw, mock_open_cf):
         # dont load hardware info
@@ -252,7 +245,7 @@ class TestFacts(fixture.SubManFixture):
 
     @patch('glob.glob', return_value="/path/to/custom/facts/foo.fact")
     @patch('subscription_manager.facts.Facts._open_custom_facts')
-    @patch('subscription_manager.facts.Facts._load_hw_facts',
+    @patch('subscription_manager.facts.Facts.collect_facts',
            return_value={})
     def test_custom_facts(self, mock_load_hw, mock_open_cf, mock_glob):
         mock_open_cf.return_value = facts_buf
@@ -261,7 +254,7 @@ class TestFacts(fixture.SubManFixture):
 
     @patch('__builtin__.open',
            side_effect=IOError)
-    @patch('subscription_manager.facts.Facts._load_hw_facts',
+    @patch('subscription_manager.facts.Facts.collect_facts',
            return_value={'test_key': 'test_value'})
     def test_io_error_on_custom_facts(self, mock_load_hw, mock_open):
         # verify we handle ioerrors reading custom facts
@@ -271,7 +264,7 @@ class TestFacts(fixture.SubManFixture):
         self.assertEquals(f['test_key'], 'test_value')
 
     @patch('subscription_manager.facts.Facts._load_custom_facts')
-    @patch('subscription_manager.facts.Facts._load_hw_facts')
+    @patch('subscription_manager.facts.Facts.collect_facts')
     def test_write_facts(self, mock_load_hw, mock_load_cf):
         mock_load_hw.return_value = \
             {'net.interface.lo.ipv4_address': '127.0.0.1',
@@ -292,9 +285,9 @@ class TestFacts(fixture.SubManFixture):
         new_facts = json.loads(new_facts_buf)
         self.assertEquals(new_facts['newstuff'], 'newstuff_is_true')
 
-    @patch('subscription_manager.facts.Facts._load_custom_facts',
+    @patch('rhsm_facts.custom.Collector.collect',
            return_value={})
-    @patch('subscription_manager.facts.Facts._load_hw_facts',
+    @patch('rhsm_facts.hardware.Collector.collect',
            return_value={})
     def test_entitlement_version(self, mock_load_hw, mock_load_cf):
         self.assertTrue("system.certificate_version" in self.f.get_facts())
