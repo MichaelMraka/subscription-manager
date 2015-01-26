@@ -23,6 +23,8 @@ BASE_SRC_DIR := src
 SRC_DIR := $(BASE_SRC_DIR)/subscription_manager
 RCT_CODE_DIR := $(PREFIX)/$(INSTALL_DIR)/$(INSTALL_MODULE)/rct
 RCT_SRC_DIR := $(BASE_SRC_DIR)/rct
+RHSM_FACTS_CODE_DIR := $(PREFIX)/$(INSTALL_DIR)/$(INSTALL_MODULE)/rhsm_facts
+RHSM_FACTS_SRC_DIR := $(BASE_SRC_DIR)/rhsm_facts
 RD_CODE_DIR := $(PREFIX)/$(INSTALL_DIR)/$(INSTALL_MODULE)/rhsm_debug
 RD_SRC_DIR := $(BASE_SRC_DIR)/rhsm_debug
 RHSM_ICON_SRC_DIR := $(BASE_SRC_DIR)/rhsm_icon
@@ -35,7 +37,7 @@ CONTENT_PLUGINS_SRC_DIR := $(BASE_SRC_DIR)/content_plugins/
 INSTALL_OSTREE_PLUGIN ?= true
 
 YUM_PLUGINS_SRC_DIR := $(BASE_SRC_DIR)/plugins
-ALL_SRC_DIRS := $(SRC_DIR) $(RCT_SRC_DIR) $(RD_SRC_DIR) $(DAEMONS_SRC_DIR) $(CONTENT_PLUGINS_SRC_DIR) $(EXAMPLE_PLUGINS_SRC_DIR) $(YUM_PLUGINS_SRC_DIR)
+ALL_SRC_DIRS := $(SRC_DIR) $(RCT_SRC_DIR) $(RD_SRC_DIR) $(RHSM_FACTS_SRC_DIR) $(DAEMONS_SRC_DIR) $(CONTENT_PLUGINS_SRC_DIR) $(EXAMPLE_PLUGINS_SRC_DIR) $(YUM_PLUGINS_SRC_DIR)
 
 # sets a version that is more or less latest tag plus commit sha
 VERSION ?= $(shell git describe | awk ' { sub(/subscription-manager-/,"")};1' )
@@ -351,6 +353,15 @@ install-files: set-versions dbus-service-install compile-po desktop-files instal
 	install -d $(RCT_CODE_DIR)
 	install -m 644 -p $(RCT_SRC_DIR)/*.py $(RCT_CODE_DIR)
 	install bin/rct $(PREFIX)/usr/bin
+
+	install -d $(RHSM_FACTS_CODE_DIR)
+	install -d $(RHSM_FACTS_CODE_DIR)/hardware
+	install -d $(RHSM_FACTS_CODE_DIR)/software
+	install -d $(RHSM_FACTS_CODE_DIR)/custom
+	install -d $(RHSM_FACTS_CODE_DIR)/hardware/rhn
+	install -m 644 -p $(RHSM_FACTS_SRC_DIR)/software/*.py $(RHSM_FACTS_CODE_DIR)/software/
+	install -m 644 -p $(RHSM_FACTS_SRC_DIR)/hardware/*.py $(RHSM_FACTS_CODE_DIR)/hardware/
+	install -m 644 -p $(RHSM_FACTS_SRC_DIR)/custom/*.py $(RHSM_FACTS_CODE_DIR)/custom/
 
 	install -d $(RD_CODE_DIR)
 	install -m 644 -p $(RD_SRC_DIR)/*.py $(RD_CODE_DIR)
