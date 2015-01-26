@@ -11,12 +11,19 @@
 #
 
 
+CERT_VERSION = "3.2"
+
+
 class SoftwareCollector(object):
     def __init__(self):
         self.facts = {}
 
     def collect(self, collected_facts=None):
         new_facts = {}
+
+        # Set the preferred entitlement certificate version:
+        new_facts.update({"system.certificate_version": CERT_VERSION})
+
         collected_facts.update(new_facts)
 
         # TODO: add rhn check

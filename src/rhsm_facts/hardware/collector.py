@@ -10,12 +10,14 @@
 # http://www.gnu.org/licenses/old-licenses/gpl-2.0.txt.
 #
 
+from rhsm_facts.hardware import hwprobe
+
 
 class HardwareCollector(object):
     def __init__(self):
         self.facts = {}
 
     def collect(self, collected_facts=None):
-        new_facts = {}
+        new_facts = hwprobe.Hardware().get_all()
         collected_facts.update(new_facts)
         return collected_facts

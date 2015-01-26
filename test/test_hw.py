@@ -316,14 +316,14 @@ class HardwareProbeTests(fixture.SubManFixture):
         info_provider = hw.get_platform_specific_info_provider()
         self.assertTrue(info_provider is not None)
 
-    @patch("subscription_manager.hwprobe.Hardware.get_arch")
+    @patch("rhsm_facts.hardware.hwprobe.Hardware.get_arch")
     def test_get_platform_specific_info_provider_not_dmi(self, mock_get_arch):
         mock_get_arch.return_value = "s390x"
         hw = hwprobe.Hardware()
         info_provider = hw.get_platform_specific_info_provider()
         self.assertEquals(hwprobe.GenericPlatformSpecificInfoProvider, info_provider)
 
-    @patch("subscription_manager.hwprobe.Hardware.get_arch")
+    @patch("rhsm_facts.hardware.hwprobe.Hardware.get_arch")
     def test_get_platform_specific_info_not_dmi(self, mock_get_arch):
         mock_get_arch.return_value = "s390x"
         hw = hwprobe.Hardware()
@@ -568,8 +568,8 @@ class HardwareProbeTests(fixture.SubManFixture):
                                 'cpu.topology_source': 's390 book_siblings_list'},
                                hw.get_cpu_info())
 
-    @patch("subscription_manager.hwprobe.Hardware.has_s390x_sysinfo")
-    @patch("subscription_manager.hwprobe.Hardware.read_s390x_sysinfo")
+    @patch("rhsm_facts.hardware.hwprobe.Hardware.has_s390x_sysinfo")
+    @patch("rhsm_facts.hardware.hwprobe.Hardware.read_s390x_sysinfo")
     @patch("os.listdir")
     def test_cpu_info_s390_sysinfo(self, mock_list_dir,
                                    mock_read_sysinfo, mock_has_sysinfo):
@@ -616,7 +616,7 @@ class HardwareProbeTests(fixture.SubManFixture):
                                     's390x sysinfo'},
                                hw.get_cpu_info())
 
-    @patch('subscription_manager.hwprobe.Hardware.count_cpumask_entries')
+    @patch('rhsm_facts.hardware.hwprobe.Hardware.count_cpumask_entries')
     @patch("os.listdir")
     def test_cpu_info(self, mock_list_dir, mock_count):
         hw = self.reload()
@@ -660,7 +660,7 @@ class HardwareProbeTests(fixture.SubManFixture):
                                 'cpu.topology_source': "fallback one socket"},
                                hw.get_cpu_info())
 
-    @patch("subscription_manager.hwprobe.Hardware.read_physical_id")
+    @patch("rhsm_facts.hardware.hwprobe.Hardware.read_physical_id")
     @patch("os.listdir")
     def test_cpu_info_no_topo_ppc64_physical_id(self, mock_list_dir,
                                                 mock_read_physical):
