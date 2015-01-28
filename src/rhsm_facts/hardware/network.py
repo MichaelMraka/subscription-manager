@@ -20,41 +20,51 @@ from rhsm_facts import exceptions
 
 
 class NetworkFactCollectorError(exceptions.FactCollectorError):
-    def __init__(self, info=None):
-        super(NetworkFactCollectorError, self).__init__(collector='network')
-        self.msg = "Error reading networking information"
-        self.info = info
+    pass
 
 
-class SocketAddressInfo(object):
+class SocketInfo(object):
+    socket_family = socket.AF_INET
+
+    def __init__(self, hostname=None):
+        self.host = hostname or self.hostname()
+        self.addrinfo = self._addrinfo()
+
+    def _hostname(self):
+        return socket.gethostname()
+
+    def _addrinfo(self):
+        return socket.getaddrinfo(self.host, None, self.socket_family, socket.SOCK_STREAM)
+
+
+class Ipv6SocketInfo(SocketInfo):
+    socket_family = socket.AF_INET6
+
+
+class NetworkInfo(object):
     def __init__(self):
         self.host = self.hostname()
-        self.ipv4_address = self.ipv4_info(self.host)
-        self.ipv6_address = self.ipv6_info(self.host)
+        self.ipv4 = SocketInfo(hostname=self.host)
+        self.ipv6 = Ipv6SocketInfo(hostname=self.host)
+
+        self.ipv4_address = self.ipv4_info()
+        self.ipv6_address = self.ipv6_info()
 
     def hostname(self):
         return socket.gethostname()
 
-    def ipv4_info(self, host):
-        ipv4_address = None
-        try:
-            info = socket.getaddrinfo(host, None, socket.AF_INET, socket.SOCK_STREAM)
-            ip_list = set([x[4][0] for x in info])
-            ipv4_address = ', '.join(ip_list)
-        except socket.error:
-            ipv4_address = "127.0.0.1"
-
+    # Note: if something fails in here, we raise an NetworkFactCollectorError instead
+    # of defaulting to '127.0.0.1'
+    def ipv4_info(self):
+        info = self.ipv4.addrinfo
+        ip_list = set([x[4][0] for x in info])
+        ipv4_address = ', '.join(ip_list)
         return ipv4_address
 
-    def ipv6_info(self, host):
-        ipv6_address = None
-        try:
-            info = socket.getaddrinfo(host, None, socket.AF_INET6, socket.SOCK_STREAM)
-            ip_list = set([x[4][0] for x in info])
-            ipv6_address = ', '.join(ip_list)
-        except socket.error:
-            ipv6_address = "::1"
-
+    def ipv6_info(self):
+        info = self.ipv6.addrinfo
+        ip_list = set([x[4][0] for x in info])
+        ipv6_address = ', '.join(ip_list)
         return ipv6_address
 
 
@@ -63,17 +73,16 @@ class Network(object):
         self.data = {}
         self.prefix = prefix or ''
 
-    def collect(self):
+    def collect(self, collected_facts=None):
         netinfo = {}
         try:
-            socket_info = SocketAddressInfo()
+            network_info = NetworkInfo()
         except Exception, e:
-            raise NetworkFactCollectorError(info="%s" % e)
+            raise NetworkFactCollectorError(e)
 
-        netinfo['network.hostname'] = socket_info.host
-        netinfo['network.ipv4_address'] = socket.ipv4_address
-        netinfo['network.ipv6_address'] = socket.ipv6_address
+        netinfo['network.hostname'] = network_info.host
+        netinfo['network.ipv4_address'] = network_info.ipv4_info()
+        netinfo['network.ipv6_address'] = network_info.ipv6_info()
 
         self.data.update(netinfo)
         return self.data
-

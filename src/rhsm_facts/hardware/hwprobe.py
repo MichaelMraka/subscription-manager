@@ -24,7 +24,6 @@ import logging
 import os
 import platform
 import re
-import socket
 from subprocess import PIPE, Popen
 import sys
 
@@ -572,31 +571,6 @@ class Hardware:
         self.allhw.update(self.lscpuinfo)
         return self.lscpuinfo
 
-    def get_network_info(self):
-        self.netinfo = {}
-        try:
-            host = socket.gethostname()
-            self.netinfo['network.hostname'] = host
-
-            try:
-                info = socket.getaddrinfo(host, None, socket.AF_INET, socket.SOCK_STREAM)
-                ip_list = set([x[4][0] for x in info])
-                self.netinfo['network.ipv4_address'] = ', '.join(ip_list)
-            except Exception:
-                self.netinfo['network.ipv4_address'] = "127.0.0.1"
-
-            try:
-                info = socket.getaddrinfo(host, None, socket.AF_INET6, socket.SOCK_STREAM)
-                ip_list = set([x[4][0] for x in info])
-                self.netinfo['network.ipv6_address'] = ', '.join(ip_list)
-            except Exception:
-                self.netinfo['network.ipv6_address'] = "::1"
-
-        except Exception, e:
-            print _("Error reading networking information:"), e
-        self.allhw.update(self.netinfo)
-        return self.netinfo
-
     def _should_get_mac_address(self, device):
         if (device.startswith('sit') or device.startswith('lo')):
             return False
@@ -814,7 +788,6 @@ class Hardware:
                             self.get_mem_info,
                             self.get_cpu_info,
                             self.get_ls_cpu_info,
-                            self.get_network_info,
                             self.get_network_interfaces,
                             self.get_virt_info,
                             # this has to happen after everything else, since

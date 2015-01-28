@@ -23,6 +23,7 @@ from mock import Mock
 import fixture
 #from subscription_manager import hwprobe
 from rhsm_facts.hardware import hwprobe
+from rhsm_facts.hardware import network
 
 PROC_BONDING_RR = """Ethernet Channel Bonding Driver: v3.6.0 (September 26, 2009)
 
@@ -156,6 +157,7 @@ class GenericPlatformSpecificInfoProviderTests(fixture.SubManFixture):
         platform_info = hwprobe.GenericPlatformSpecificInfoProvider(hw_info)
         self.assertEquals(0, len(platform_info.info))
         self.assertFalse('foo' in platform_info.info)
+
 
 
 class HardwareProbeTests(fixture.SubManFixture):
@@ -341,16 +343,6 @@ class HardwareProbeTests(fixture.SubManFixture):
         self.assertEquals(len(mem), 2)
         for key in mem:
             assert key in ['memory.memtotal', 'memory.swaptotal']
-
-    # this test will probably fail on a machine with
-    # no network.
-    def test_networkinfo(self):
-        reload(hwprobe)
-        hw = hwprobe.Hardware()
-        net = hw.get_network_info()
-        self.assertEquals(len(net), 3)
-        for key in net:
-            assert key in ['network.hostname', 'network.ipv4_address', 'network.ipv6_address']
 
     def test_network_interfaces(self):
         reload(hwprobe)

@@ -11,6 +11,7 @@
 #
 
 from rhsm_facts.hardware import hwprobe
+from rhsm_facts.hardware import network
 
 
 class HardwareCollector(object):
@@ -20,4 +21,8 @@ class HardwareCollector(object):
     def collect(self, collected_facts=None):
         new_facts = hwprobe.Hardware().get_all()
         collected_facts.update(new_facts)
+
+        network_facts = network.Network().collect(collected_facts)
+        collected_facts.update(network_facts)
+
         return collected_facts
