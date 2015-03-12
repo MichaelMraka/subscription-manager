@@ -176,7 +176,7 @@ class MainWindow(widgets.GladeWidget):
         self.import_sub_dialog = ImportSubDialog()
 
         self.network_config_dialog = networkConfig.NetworkConfigDialog()
-        self.network_config_dialog.xml.get_widget("saveButton").connect("clicked", self._config_changed)
+        self.network_config_dialog.builder.get_object("saveButton").connect("clicked", self._config_changed)
 
         self.redeem_dialog = redeem.RedeemDialog(self.backend)
 
@@ -208,7 +208,7 @@ class MainWindow(widgets.GladeWidget):
         self.notebook.append_page(self.my_subs_tab.get_content(),
                 gtk.Label(self.my_subs_tab.get_label()))
 
-        self.glade.signal_autoconnect({
+        self.builder.connect_signals({
             "on_register_menu_item_activate": self._register_item_clicked,
             "on_unregister_menu_item_activate": self._unregister_item_clicked,
             "on_import_cert_menu_item_activate": self._import_cert_item_clicked,
