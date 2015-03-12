@@ -53,7 +53,8 @@ class NetworkConfigDialog:
 
     def __init__(self):
         #self.builder = gtk.glade.XML(GLADE_XML)
-        self.builder = gtk.Builder(GLADE_XML)
+        self.builder = gtk.Builder()
+        self.builder.add_from_file(GLADE_XML)
         # Get widgets we'll need to access
         self.dlg = self.builder.get_object("networkConfigDialog")
         self.enableProxyButton = self.builder.get_object("enableProxyButton")
