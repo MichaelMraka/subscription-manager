@@ -100,11 +100,11 @@ class InstalledProductsTab(widgets.SubscriptionManagerTab):
 
         self.set_sorts(self.store, cols)
 
-        self.glade.signal_autoconnect({
+        self.builder.connect_signals({
             "on_update_certificates_button_clicked":
             parent._update_certificates_button_clicked,
         })
-        self.glade.signal_autoconnect({
+        self.builder.connect_signals({
             "on_register_button_clicked": parent._register_item_clicked,
         })
 

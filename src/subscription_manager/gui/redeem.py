@@ -34,7 +34,7 @@ class RedeemDialog(widgets.GladeWidget):
     def __init__(self, backend):
         super(RedeemDialog, self).__init__('redeem.glade')
 
-        self.glade.signal_autoconnect({
+        self.builder.connect_signals({
             "on_redeem_dialog_delete_event": self._hide_callback,
             "on_cancel_button_clicked": self._hide_callback,
             "on_redeem_button_clicked": self._redeem,

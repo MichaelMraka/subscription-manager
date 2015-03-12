@@ -68,7 +68,7 @@ class RepositoriesDialog(widgets.GladeWidget, HasSortableWidget):
         self.identity = require(IDENTITY)
         self.ent_dir = require(ENT_DIR)
 
-        self.glade.signal_autoconnect({
+        self.builder.connect_signals({
                 "on_dialog_delete_event": self._on_close,
                 "on_close_button_clicked": self._on_close,
                 "on_reset_button_clicked": self._on_reset_repo,
