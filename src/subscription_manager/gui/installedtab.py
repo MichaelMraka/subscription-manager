@@ -102,9 +102,7 @@ class InstalledProductsTab(widgets.SubscriptionManagerTab):
 
         self.builder.connect_signals({
             "on_update_certificates_button_clicked":
-            parent._update_certificates_button_clicked,
-        })
-        self.builder.connect_signals({
+                parent._update_certificates_button_clicked,
             "on_register_button_clicked": parent._register_item_clicked,
         })
 
