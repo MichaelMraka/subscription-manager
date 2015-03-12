@@ -59,7 +59,7 @@ class FilterOptionsWindow(widgets.GladeWidget):
         # connected.  Otherwise, their callbacks will be triggered when we
         # call set_active().
         self.set_initial_widget_state()
-        self.glade.signal_autoconnect({
+        self.builder.connect_signals({
             "on_filter_product_window_delete_event": self.deleted,
             "on_clear_button_clicked": self.clear_button_clicked,
             "on_close_button_clicked": self.close_button_clicked,
