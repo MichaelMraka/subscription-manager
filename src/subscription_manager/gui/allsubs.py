@@ -105,8 +105,13 @@ class AllSubscriptionsTab(widgets.SubscriptionManagerTab):
 
         self.edit_quantity_label.set_label(quantity_column.get_column_legend_text())
 
+
+
+        # FIXME: Likely a correct way to do this now, so stub this out now
         # Ensure all cells are colored according the the store.
-        set_background_model_index(self.top_view, self.store['background'])
+        #set_background_model_index(self.top_view, self.store['background'])
+        # FIXME
+
 
         self.top_view.connect("row_activated",
                               widgets.expand_collapse_on_row_activated_callback)
@@ -121,7 +126,7 @@ class AllSubscriptionsTab(widgets.SubscriptionManagerTab):
         self.filter_dialog = FilterOptionsWindow(self.filters, self)
 
         self.update_applied_filters_label()
-        self.glade.signal_autoconnect({
+        self.builder.connect_signals({
             "on_search_button_clicked": self.search_button_clicked,
             "on_subscribe_button_clicked": self.subscribe_button_clicked,
             "on_filter_options_button_clicked": self.filter_options_button_clicked,
