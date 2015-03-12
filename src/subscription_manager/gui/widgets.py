@@ -15,6 +15,7 @@
 
 import datetime
 import gettext
+import logging
 import os
 import time
 import warnings
@@ -67,8 +68,13 @@ class GladeWidget(object):
         The initial_widget_names is a list of widgets to pull in as instance
         variables.
         """
-        self.builder = gtk.Builder()
+        self.log = logging.getLogger('rhsm-app.' + __name__ +
+                                     '.' + self.__class__.__name__)
+
         self.glade_file = os.path.join(GLADE_DIR, glade_file)
+        self.log.debug("gtk.Builder loading glade/ui file=%s",
+                       self.glade_file)
+        self.builder = gtk.Builder()
         self.builder.add_from_file(self.glade_file)
         #self.glade = gtk.glade.XML(os.path.join(GLADE_DIR, glade_file))
 
