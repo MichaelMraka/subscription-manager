@@ -113,7 +113,7 @@ class MySubscriptionsTab(widgets.SubscriptionManagerTab):
         # Don't update the icon in the first run, we don't have real compliance data yet
         self.update_subscriptions(update_dbus=False)
 
-        self.glade.signal_autoconnect({'on_unsubscribe_button_clicked': self.unsubscribe_button_clicked})
+        self.builder.connect_signals({'on_unsubscribe_button_clicked': self.unsubscribe_button_clicked})
 
     def get_store(self):
         return MappedTreeStore(self.get_type_map())
@@ -334,8 +334,8 @@ class MySubscriptionsTab(widgets.SubscriptionManagerTab):
         entry['installed_text'] = '%s / %s' % (len(installed), len(products))
         entry['start_date'] = cert.valid_range.begin()
         entry['expiration_date'] = cert.valid_range.end()
-        entry['quantity'] = order.quantity_used
-        entry['serial'] = cert.serial
+        entry['quantity'] = str(order.quantity_used)
+        entry['serial'] = str(cert.serial)
         entry['align'] = 0.5         # Center horizontally
         entry['background'] = None
         entry['is_group_row'] = False
