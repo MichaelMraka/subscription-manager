@@ -17,7 +17,6 @@ import gettext
 import logging
 
 import gtk
-import gtk.glade
 
 from subscription_manager.gui import widgets
 from subscription_manager.gui import utils

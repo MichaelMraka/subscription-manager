@@ -25,7 +25,6 @@ import threading
 
 import gobject
 import gtk
-import gtk.glade
 
 import rhsm.config as config
 from rhsm.utils import ServerUrlParseError
@@ -52,9 +51,9 @@ _ = lambda x: gettext.ldgettext("rhsm", x)
 
 gettext.textdomain("rhsm")
 
-gtk.glade.bindtextdomain("rhsm")
+#gtk.glade.bindtextdomain("rhsm")
 
-gtk.glade.textdomain("rhsm")
+#gtk.glade.textdomain("rhsm")
 
 log = logging.getLogger('rhsm-app.' + __name__)
 
@@ -133,7 +132,7 @@ class RegisterScreen(widgets.GladeWidget):
         """
         Callbacks will be executed when registration status changes.
         """
-        widgets.GladeWidget.__init__(self, "registration.glade")
+        super(RegisterScreen, self).__init__("registration.glade")
 
         self.backend = backend
         self.identity = require(IDENTITY)
@@ -148,7 +147,7 @@ class RegisterScreen(widgets.GladeWidget):
                "hide": self.cancel,
                "on_register_dialog_delete_event": self._delete_event,
             }
-        self.glade.signal_autoconnect(dic)
+        self.builder.connect_signals(dic)
 
         self.window = self.register_dialog
         self.register_dialog.set_transient_for(self.parent)
@@ -759,12 +758,12 @@ class CredentialsScreen(Screen):
 
         self._initialize_consumer_name()
 
-        register_tip_label = self.glade.get_widget("registration_tip_label")
+        register_tip_label = self.builder.get_object("registration_tip_label")
         register_tip_label.set_label("<small>%s</small>" %
                                      get_branding().GUI_FORGOT_LOGIN_TIP)
 
         register_header_label = \
-                self.glade.get_widget("registration_header_label")
+                self.builder.get_object("registration_header_label")
         register_header_label.set_label("<b>%s</b>" %
                                         get_branding().GUI_REGISTRATION_HEADER)
 
@@ -941,7 +940,7 @@ class ChooseServerScreen(Screen):
                 "on_proxy_button_clicked": self._on_proxy_button_clicked,
                 "on_server_entry_changed": self._on_server_entry_changed,
             }
-        self.glade.signal_autoconnect(callbacks)
+        self.builder.connect_signals(callbacks)
 
         self.network_config_dialog = networkConfig.NetworkConfigDialog()
 
@@ -1293,7 +1292,7 @@ class InfoScreen(Screen):
                 "on_back_to_reg_button_clicked":
                     self._on_back_to_reg_button_clicked
             }
-        self.glade.signal_autoconnect(callbacks)
+        self.builder.connect_signals(callbacks)
 
     def pre(self):
         return False

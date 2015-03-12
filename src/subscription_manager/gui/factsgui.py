@@ -45,7 +45,7 @@ class SystemFactsDialog(widgets.GladeWidget):
         self.identity = inj.require(inj.IDENTITY)
         self.cp_provider = inj.require(inj.CP_PROVIDER)
         self.facts = facts
-        self.glade.signal_autoconnect({
+        self.builder.connect_signals({
                 "on_system_facts_dialog_delete_event": self._hide_callback,
                 "on_close_button_clicked": self._hide_callback,
                 "on_facts_update_button_clicked": self._update_facts_callback

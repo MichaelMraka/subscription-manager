@@ -28,7 +28,8 @@ import urllib2
 import webbrowser
 
 import gtk
-import gtk.glade
+#import gtk.glade
+from gi.repository import Gtk
 
 import rhsm.config as config
 
@@ -61,8 +62,8 @@ _ = gettext.gettext
 
 gettext.textdomain("rhsm")
 
-gtk.glade.bindtextdomain("rhsm")
-gtk.window_set_default_icon_name("subscription-manager")
+#gtk.glade.bindtextdomain("rhsm")
+#gtk.window_set_default_icon_name("subscription-manager")
 
 log = logging.getLogger('rhsm-app.' + __name__)
 
