@@ -20,7 +20,6 @@ import time
 
 import gobject
 import gtk
-import gtk.glade
 
 from subscription_manager.gui import widgets
 from subscription_manager.gui.storage import MappedListStore
@@ -41,24 +40,25 @@ class ContractSelectionWindow(object):
         self._selected_callback = selected_callback
         self._cancel_callback = cancel_callback
         self.total_contracts = 0
-        self.contract_selection_xml = gtk.glade.XML(CONTRACT_SELECTION_GLADE)
-        self.contract_selection_win = self.contract_selection_xml.get_widget(
+        self.builder = gtk.Builder()
+        self.builder.add_from_file(CONTRACT_SELECTION_GLADE)
+        self.contract_selection_win = self.builder.get_object(
             "contract_selection_window")
-        self.subscribe_button = self.contract_selection_xml.get_widget('subscribe_button')
-        self.edit_quantity_label = self.contract_selection_xml.get_widget('edit_quantity_label')
+        self.subscribe_button = self.builder.get_object('subscribe_button')
+        self.edit_quantity_label = self.builder.get_object('edit_quantity_label')
 
         self.contract_selection_treeview = \
-                self.contract_selection_xml.get_widget(
+                self.builder.get_object(
                         "contract_selection_treeview")
         self.contract_selection_treeview.get_selection().connect("changed",
             self._on_contract_selection)
 
-        self.subscription_name_label = self.contract_selection_xml.get_widget(
+        self.subscription_name_label = self.builder.get_object(
             "subscription_name_label")
         self.subscription_name_label.set_line_wrap(True)
         self.subscription_name_label.connect('size-allocate', lambda label, size: label.set_size_request(size.width - 1, -1))
 
-        self.total_contracts_label = self.contract_selection_xml.get_widget(
+        self.total_contracts_label = self.builder.get_object(
             "total_contracts_label")
 
         self.contract_selection_xml.signal_autoconnect({

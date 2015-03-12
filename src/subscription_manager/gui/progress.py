@@ -14,7 +14,6 @@
 #
 
 import gtk
-import gtk.glade
 
 from subscription_manager.gui import widgets
 

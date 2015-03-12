@@ -67,7 +67,10 @@ class GladeWidget(object):
         The initial_widget_names is a list of widgets to pull in as instance
         variables.
         """
-        self.glade = gtk.glade.XML(os.path.join(GLADE_DIR, glade_file))
+        self.builder = gtk.Builder()
+        self.glade_file = os.path.join(GLADE_DIR, glade_file)
+        self.builder.add_from_file(self.glade_file)
+        #self.glade = gtk.glade.XML(os.path.join(GLADE_DIR, glade_file))
 
         if self.widget_names:
             self.pull_widgets()
@@ -84,7 +87,7 @@ class GladeWidget(object):
         """
 
         for name in self.widget_names:
-            setattr(self, name, self.glade.get_widget(name))
+            setattr(self, name, self.builder.get_object(name))
 
 
 class HasSortableWidget(object):
