@@ -17,16 +17,32 @@
 #
 
 import logging
+import sys
 
 from pyanaconda.ui.gui.spokes import NormalSpoke
 from pyanaconda.ui.common import FirstbootOnlySpokeMixIn
 from pyanaconda.ui.gui.categories.system import SystemCategory
 
+# need sys.path?
+
+log = logging.getLogger(__name__)
+
+from gi import pygtkcompat
+pygtkcompat.enable()
+pygtkcompat.enable_gtk(version='3.0')
+
+import gtk
+
+log.debug("sys.path=%s", sys.path)
+from subscription_manager.gui import managergui
+from subscription_manager.injectioninit import init_dep_injection
+from subscription_manager.injection import PLUGIN_MANAGER, IDENTITY, require
+from subscription_manager.gui import registergui
+
 # FIXME
 
 __all__ = ["RHSMSpoke"]
 
-log = logging.getLogger(__name__)
 
 
 class RHSMSpoke(FirstbootOnlySpokeMixIn, NormalSpoke):
@@ -55,6 +71,19 @@ class RHSMSpoke(FirstbootOnlySpokeMixIn, NormalSpoke):
         log.debug("I've been initialize()'ed")
         NormalSpoke.initialize(self)
         self._done = False
+        init_dep_injection()
+        backend = managergui.Backend()
+        log.debug("backend=%s", backend)
+
+        self.registergui = registergui.RegisterScreen(backend)
+
+    def run(self):
+        log.debug("run")
+        self.registergui.window.show()
+        rc = self.registergui.window.run()
+        self.registergui.window.hide()
+
+        return rc
 
     def refresh(self):
         pass
