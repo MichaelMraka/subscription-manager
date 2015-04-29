@@ -576,7 +576,6 @@ class ContractSubDetailsWidget(SubDetailsWidget):
         # FIXME
 
 
-
 class CellRendererDate(gtk.CellRendererText):
 
     """
