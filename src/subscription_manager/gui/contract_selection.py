@@ -15,7 +15,6 @@
 
 import datetime
 import gettext
-import os
 import time
 
 import gobject
@@ -46,13 +45,11 @@ class ContractSelectionWindow(widgets.SubmanBaseWidget):
             self._on_contract_selection)
 
         self.subscription_name_label.set_line_wrap(True)
-        self.subscription_name_label.connect('size-allocate', lambda label, size: label.set_size_request(size.width - 1, -1))
-	
 
         callbacks = {"on_cancel_button_clicked": self._cancel_button_clicked,
-		     "size-allocate": 
-			lambda label, size: label.set_size_request(size.width - 1, -1),
-		     "on_subscribe_button_clicked": self._subscribe_button_clicked}
+                     "size-allocate":
+                        lambda label, size: label.set_size_request(size.width - 1, -1),
+                     "on_subscribe_button_clicked": self._subscribe_button_clicked}
         self.connect_signals(callbacks)
 
         self.model = MappedListStore(self.get_type_map())
@@ -183,7 +180,6 @@ class ContractSelectionWindow(widgets.SubmanBaseWidget):
     def set_parent_window(self, window):
         self.log.debug('window %s', window)
         self.contract_selection_window.set_transient_for(window)
-
 
     def _cancel_button_clicked(self, button):
         self._cancel_callback()
