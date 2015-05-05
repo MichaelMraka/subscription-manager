@@ -61,10 +61,10 @@ class AboutDialog(object):
         sub_man_version_label = Label()
         backend_version_label = Label()
         context_box = self.dialog.vbox.get_children()[0]
-        context_box.pack_end(next_update_label)
-        context_box.pack_end(python_rhsm_version_label)
-        context_box.pack_end(sub_man_version_label)
-        context_box.pack_end(backend_version_label)
+        context_box.pack_end(next_update_label, True, True, 0)
+        context_box.pack_end(python_rhsm_version_label, True, True, 0)
+        context_box.pack_end(sub_man_version_label, True, True, 0)
+        context_box.pack_end(backend_version_label, True, True, 0)
 
         self._set_next_update(next_update_label)
 
