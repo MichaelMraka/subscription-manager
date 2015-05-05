@@ -27,22 +27,18 @@ from pyanaconda.ui.gui.categories.system import SystemCategory
 
 log = logging.getLogger(__name__)
 
-from gi import pygtkcompat
-pygtkcompat.enable()
-pygtkcompat.enable_gtk(version='3.0')
-
-import gtk
+#from gi.repository import Gtk
+#from gi.repository from gi.repository import Gtk
 
 log.debug("sys.path=%s", sys.path)
 from subscription_manager.gui import managergui
 from subscription_manager.injectioninit import init_dep_injection
-from subscription_manager.injection import PLUGIN_MANAGER, IDENTITY, require
+#from subscription_manager.injection import PLUGIN_MANAGER, IDENTITY, require
 from subscription_manager.gui import registergui
 
 # FIXME
 
 __all__ = ["RHSMSpoke"]
-
 
 
 class RHSMSpoke(FirstbootOnlySpokeMixIn, NormalSpoke):
