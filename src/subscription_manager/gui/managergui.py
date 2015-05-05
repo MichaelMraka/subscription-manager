@@ -202,12 +202,12 @@ class MainWindow(widgets.SubmanBaseWidget):
 
         hbox = Gtk.HBox(spacing=6)
         hbox.pack_start(self.installed_tab_icon, False, False)
-        hbox.pack_start(Gtk.Label(self.installed_tab.get_label(, True, True, 0)), False, False)
+        hbox.pack_start(Gtk.Label(self.installed_tab.get_label()), False, False, 0)
         self.notebook.append_page(self.installed_tab.get_content(), hbox)
         hbox.show_all()
 
         self.notebook.append_page(self.my_subs_tab.get_content(),
-                Gtk.Label(label=self.my_subs_tab.get_label()))
+                                  Gtk.Label(label=self.my_subs_tab.get_label()))
 
         self.connect_signals({
             "on_register_menu_item_activate": self._register_item_clicked,
