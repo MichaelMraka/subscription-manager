@@ -33,10 +33,10 @@ warnings.filterwarnings(action="ignore",
 
 import sys
 import os
-#import dbus
-#import dbus.service
-#import dbus.glib
-#import dbus.exceptions
+import dbus
+import dbus.service
+import dbus.glib
+import dbus.exceptions
 import logging
 import gettext
 _ = gettext.gettext
@@ -53,11 +53,9 @@ try:
 except AttributeError:
     pass
 
-#try:
-#    from gi.repository import Gtk
-#except RuntimeError, e:
-#    print _("Unable to open a display")
-#    sys.exit(1)
+
+from gi.repository import Gtk
+from gi.repository import GObject
 
 # Since the location of these def's keeps moving, hardcoded them here as per the spec
 # see http://dbus.freedesktop.org/doc/dbus-specification.html#message-bus-names
@@ -76,9 +74,6 @@ REQUEST_NAME_REPLY_ALREADY_OWNER = 4
 # in rhel7. So for rhel5, we conditionally import dbus_bindings
 # use bus_request_name, otherwise we use the newer bus.request_name
 
-from gi.repository import Gtk
-from gi.repository import Gdk
-
 
 def _request_name_rhel5(bus, bus_name):
     return dbus.dbus_bindings.bus_request_name(bus.get_connection(), bus_name.get_name())
@@ -88,13 +83,13 @@ def _request_name(bus, bus_name):
     return bus.request_name(bus_name.get_name())
 
 
-#try:
-#    import dbus.dbus_bindings
-#    request_name = _request_name_rhel5
-#except ImportError, e:
-#    request_name = _request_name
+try:
+    import dbus.dbus_bindings
+    request_name = _request_name_rhel5
+except ImportError, e:
+    request_name = _request_name
 
-Gdk.threads_init()
+GObject.threads_init()
 
 
 def system_exit(code, msgs=None):
@@ -137,24 +132,22 @@ try:
         WrappedIndentedHelpFormatter, USAGE
 except ImportError, e:
     log.exception(e)
-    raise
     system_exit(2, "Unable to find Subscription Manager module.\n"
                   "Error: %s" % e)
 
 
-#class SubscriptionManagerService(dbus.service.Object):
-#    def __init__(self, window):
-#        self.window = window
-#        bus_name = dbus.service.BusName(BUS_NAME, bus=dbus.SessionBus())
-#        dbus.service.Object.__init__(self, bus_name, BUS_PATH)
-#
-#    @dbus.service.method(dbus_interface=BUS_NAME)
-#    def show_window(self):
-#        self.window.present()
+class SubscriptionManagerService(dbus.service.Object):
+    def __init__(self, window):
+        self.window = window
+        bus_name = dbus.service.BusName(BUS_NAME, bus=dbus.SessionBus())
+        dbus.service.Object.__init__(self, bus_name, BUS_PATH)
+
+    @dbus.service.method(dbus_interface=BUS_NAME)
+    def show_window(self):
+        self.window.present()
 
 
 def already_running(bus):
-    return False
     if bus is None:
         return False
 
@@ -176,37 +169,36 @@ if __name__ == '__main__':
 
     log = logging.getLogger("rhsm-app.subscription-manager-gui")
 
-#    try:
-#        bus = dbus.SessionBus()
-#    except dbus.exceptions.DBusException, e:
-#        log.debug("Enabled to connect to dbus SessionBus")
-#        log.exception(e)
-#        # Just ignore it if for some reason we can't find the session bus
-#        bus = None
+    try:
+        bus = dbus.SessionBus()
+    except dbus.exceptions.DBusException, e:
+        log.debug("Enabled to connect to dbus SessionBus")
+        log.exception(e)
+        # Just ignore it if for some reason we can't find the session bus
+        bus = None
 
-    bus = None
-#    if already_running(bus):
-#        # Attempt to raise the running instance to the forefront
-#        try:
-#            remote_object = bus.get_object(BUS_NAME, BUS_PATH)
-#            remote_object.show_window(dbus_interface=BUS_NAME)
-#            log.debug("subscription-manager-gui already running, showing main window")
-#        except dbus.exceptions.DBusException, e:
-#            log.debug("Error attempting to show main window via dbus")
-#            log.debug("dbus remote_object with no show_window: %s" % remote_object)
-#            log.debug(e)
-#            # failed to raise the window, maybe we raced dbus?
-#            # fallback to opening a new window
-#        else:
-#            # we raised the existing window, we are done
-#            sys.exit()
+    if already_running(bus):
+        # Attempt to raise the running instance to the forefront
+        try:
+            remote_object = bus.get_object(BUS_NAME, BUS_PATH)
+            remote_object.show_window(dbus_interface=BUS_NAME)
+            log.debug("subscription-manager-gui already running, showing main window")
+        except dbus.exceptions.DBusException, e:
+            log.debug("Error attempting to show main window via dbus")
+            log.debug("dbus remote_object with no show_window: %s" % remote_object)
+            log.debug(e)
+            # failed to raise the window, maybe we raced dbus?
+            # fallback to opening a new window
+        else:
+            # we raised the existing window, we are done
+            sys.exit()
 
     try:
         main = managergui.MainWindow(auto_launch_registration=options.register)
 
         # Hook into dbus service - only if it is available
-#        if bus:
-#            SubscriptionManagerService(main.main_window)
+        if bus:
+            SubscriptionManagerService(main.main_window)
 
         # Exit the gtk loop when the window is closed
         main.main_window.connect('hide', Gtk.main_quit)
@@ -220,5 +212,4 @@ if __name__ == '__main__':
         system_exit(0, "\nUser interrupted process.")
     except Exception, e:
         log.exception(e)
-        #raise
         system_exit(1, e)
