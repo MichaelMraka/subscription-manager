@@ -21,8 +21,6 @@ import threading
 from gi.repository import GObject
 import socket
 
-from gi.repository import Gtk
-
 import rhsm.config
 import rhsm.connection as connection
 import rhsm.utils
