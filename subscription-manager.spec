@@ -5,6 +5,7 @@
 %global has_ostree %use_systemd
 %global use_old_firstboot (0%{?rhel} && 0%{?rhel} <= 6)
 %global rhsm_plugins_dir  /usr/share/rhsm-plugins
+%global use_gtk3 1
 
 
 %global _hardened_build 1
@@ -38,13 +39,18 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Requires:  python-ethtool
 Requires:  python-iniparse
-Requires:  pygobject2
 Requires:  virt-what
 Requires:  python-rhsm >= 1.14.2
 Requires:  dbus-python
 Requires:  yum >= 3.2.19-15
 Requires:  usermode
 Requires:  python-dateutil
+%if %use_gtk3
+Requires: gobject-introspection
+Requires: pygobject3-base
+%else
+Requires:  pygobject2
+%endif
 
 # There's no dmi to read on these arches, so don't pull in this dep.
 %ifnarch ppc ppc64 s390 s390x
@@ -125,7 +131,14 @@ from the server. Populates /etc/docker/certs.d appropriately.
 Summary: A GUI interface to manage Red Hat product subscriptions
 Group: System Environment/Base
 Requires: %{name} = %{version}-%{release}
+
+# We need pygtk3 and gtk2 until rhsm-icon is ported to gtk3
+%if %use_gtk3
+Requires: pygobject3
+Requires: gtk3
+%endif
 Requires: pygtk2 pygtk2-libglade gnome-python2 gnome-python2-canvas
+
 Requires: usermode-gtk
 Requires: dbus-x11
 Requires: gnome-icon-theme
