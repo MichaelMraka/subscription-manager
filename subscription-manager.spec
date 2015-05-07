@@ -71,11 +71,15 @@ BuildRequires: python-devel
 BuildRequires: gettext
 BuildRequires: intltool
 BuildRequires: libnotify-devel
-BuildRequires: gtk2-devel
 BuildRequires: desktop-file-utils
 BuildRequires: redhat-lsb
 BuildRequires: scrollkeeper
 BuildRequires: GConf2-devel
+%if %use_gtk3
+BuildRequires: gtk3-devel
+%else
+BuildRequires: gtk2-devel
+%endif
 %if %use_systemd
 # We need the systemd RPM macros
 BuildRequires: systemd
@@ -136,8 +140,9 @@ Requires: %{name} = %{version}-%{release}
 %if %use_gtk3
 Requires: pygobject3
 Requires: gtk3
-%endif
+%else
 Requires: pygtk2 pygtk2-libglade gnome-python2 gnome-python2-canvas
+%endif
 
 Requires: usermode-gtk
 Requires: dbus-x11
