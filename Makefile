@@ -233,7 +233,7 @@ install-initial-setup:
 	install -m 644 -p $(ANACONDA_ADDON_MODULE_SRC_DIR)/ks/*.py $(INITIAL_SETUP_INST_DIR)/ks/
 
 .PHONY: install
-install: install-files install-conf install-help-files install-plugins-conf
+install: install-files install-po install-conf install-help-files install-plugins-conf
 
 set-versions:
 	sed -e 's/RPM_VERSION/$(VERSION)/g' $(SRC_DIR)/version.py.in > $(SRC_DIR)/version.py
@@ -243,7 +243,10 @@ clean-versions:
 	rm -rf $(SRC_DIR)/version.py
 	rm -rf $(RCT_SRC_DIR)/version.py
 
-install-files: set-versions dbus-service-install compile-po desktop-files install-plugins install-initial-setup
+install-po: compile-po
+	cp -R po/build/* $(PREFIX)/$(INSTALL_DIR)/locale/
+
+install-files: set-versions dbus-service-install desktop-files install-plugins install-initial-setup
 	install -d $(PYTHON_INST_DIR)/gui
 	install -d $(PYTHON_INST_DIR)/gui/data/icons
 	install -d $(PYTHON_INST_DIR)/branding
@@ -295,7 +298,6 @@ install-files: set-versions dbus-service-install compile-po desktop-files instal
 	install -m 755 $(DAEMONS_SRC_DIR)/rhsmcertd-worker.py \
 		$(PREFIX)/usr/libexec/rhsmcertd-worker
 
-	cp -R po/build/* $(PREFIX)/$(INSTALL_DIR)/locale/
 
 	install -m 644 -p $(SRC_DIR)/*.py $(PYTHON_INST_DIR)/
 	install -m 644 -p $(SRC_DIR)/gui/*.py $(PYTHON_INST_DIR)/gui
@@ -304,6 +306,7 @@ install-files: set-versions dbus-service-install compile-po desktop-files instal
 	install -m 644 -p $(SRC_DIR)/model/*.py $(PYTHON_INST_DIR)/model
 	install -m 644 -p $(SRC_DIR)/plugin/*.py $(PYTHON_INST_DIR)/plugin
 	install -m 644 -p src/plugins/*.py $(PREFIX)/usr/lib/yum-plugins/
+	
 	install -m 644 etc-conf/subscription-manager-gui.completion.sh $(PREFIX)/etc/bash_completion.d/subscription-manager-gui
 
 	install -m 644 $(SRC_DIR)/gui/data/*.glade $(SUBMAN_INST_DIR)/gui/data/
